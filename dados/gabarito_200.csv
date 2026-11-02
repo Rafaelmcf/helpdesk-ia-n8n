@@ -1,0 +1,201 @@
+ID Tally,Empresa,Modelo,Categoria esperada,Artigo esperado,Prioridade esperada,Resolve sozinho?,Duplicado de
+carga001,BETA,T08,Rede e internet,KB-006,P2,não,
+carga002,VIDA,T15,Hardware,nenhum,P4,não,
+carga003,ACME,T22,Hardware,nenhum,P3,não,
+carga004,BETA,T05,Impressora,KB-004,P4,sim,
+carga005,VIDA,T12,E-mail e Office,KB-008,P2,não,
+carga006,ACME,T19,Segurança,KB-012,P2,não,
+carga007,BETA,T02,Acesso e senha,KB-001,P3,não,
+carga008,VIDA,T09,Rede e internet,KB-006,P4,não,
+carga009,ACME,T16,Acesso e senha,KB-010,P3,não,
+carga010,BETA,T23,Acesso e senha,nenhum,P4,não,
+carga011,VIDA,T06,Impressora,KB-005,P4,não,
+carga012,ACME,T13,Hardware,KB-009,P4,sim,
+carga013,BETA,T20,Sistemas,nenhum,P1,não,
+carga014,VIDA,T03,Acesso e senha,KB-002,P3,não,
+carga015,ACME,T10,Rede e internet,KB-ACME-01,P3,não,
+carga016,BETA,T17,Sistemas,KB-011,P4,não,
+carga017,VIDA,T24,Impressora,nenhum,P1,não,
+carga018,ACME,T07,Rede e internet,KB-006,P1,não,
+carga019,BETA,T14,Hardware,nenhum,P3,não,
+carga020,VIDA,T24,Impressora,nenhum,P1,não,carga017
+carga021,ACME,T04,Acesso e senha,KB-003,P4,não,
+carga022,BETA,T11,E-mail e Office,KB-008,P4,sim,
+carga023,VIDA,T18,Segurança,KB-012,P4,não,
+carga024,ACME,T01,Acesso e senha,KB-001,P4,sim,
+carga025,BETA,T08,Rede e internet,KB-006,P2,não,carga001
+carga026,VIDA,T15,Hardware,nenhum,P4,não,
+carga027,ACME,T22,Hardware,nenhum,P3,não,carga003
+carga028,BETA,T05,Impressora,KB-004,P4,sim,
+carga029,VIDA,T12,E-mail e Office,KB-008,P2,não,carga005
+carga030,ACME,T19,Segurança,KB-012,P2,não,carga006
+carga031,BETA,T02,Acesso e senha,KB-001,P3,não,
+carga032,VIDA,T09,Rede e internet,KB-006,P4,não,
+carga033,ACME,T16,Acesso e senha,KB-010,P3,não,carga009
+carga034,BETA,T23,Acesso e senha,nenhum,P4,não,
+carga035,VIDA,T06,Impressora,KB-005,P4,não,
+carga036,ACME,T13,Hardware,KB-009,P4,sim,
+carga037,BETA,T20,Sistemas,nenhum,P1,não,carga013
+carga038,VIDA,T03,Acesso e senha,KB-002,P3,não,
+carga039,ACME,T10,Rede e internet,KB-ACME-01,P3,não,
+carga040,BETA,T20,Sistemas,nenhum,P1,não,carga037;carga013
+carga041,VIDA,T24,Impressora,nenhum,P1,não,carga017;carga020
+carga042,ACME,T07,Rede e internet,KB-006,P1,não,carga018
+carga043,BETA,T14,Hardware,nenhum,P3,não,
+carga044,VIDA,T21,Sistemas,KB-VIDA-01,P4,não,
+carga045,ACME,T04,Acesso e senha,KB-003,P4,não,
+carga046,BETA,T11,E-mail e Office,KB-008,P4,sim,
+carga047,VIDA,T18,Segurança,KB-012,P4,não,
+carga048,ACME,T01,Acesso e senha,KB-001,P4,sim,
+carga049,BETA,T08,Rede e internet,KB-006,P2,não,carga001;carga025
+carga050,VIDA,T15,Hardware,nenhum,P4,não,
+carga051,ACME,T22,Hardware,nenhum,P3,não,carga003;carga027
+carga052,BETA,T05,Impressora,KB-004,P4,sim,
+carga053,VIDA,T12,E-mail e Office,KB-008,P2,não,carga005;carga029
+carga054,ACME,T19,Segurança,KB-012,P2,não,carga006;carga030
+carga055,BETA,T02,Acesso e senha,KB-001,P3,não,
+carga056,VIDA,T09,Rede e internet,KB-006,P4,não,
+carga057,ACME,T16,Acesso e senha,KB-010,P3,não,carga009;carga033
+carga058,BETA,T23,Acesso e senha,nenhum,P4,não,
+carga059,VIDA,T06,Impressora,KB-005,P4,não,
+carga060,ACME,T16,Acesso e senha,KB-010,P3,não,carga057;carga009;carga033
+carga061,BETA,T20,Sistemas,nenhum,P1,não,carga013;carga037;carga040
+carga062,VIDA,T03,Acesso e senha,KB-002,P3,não,
+carga063,ACME,T10,Rede e internet,KB-ACME-01,P3,não,
+carga064,BETA,T17,Sistemas,KB-011,P4,não,
+carga065,VIDA,T24,Impressora,nenhum,P1,não,carga017;carga020;carga041
+carga066,ACME,T07,Rede e internet,KB-006,P1,não,carga018;carga042
+carga067,BETA,T14,Hardware,nenhum,P3,não,
+carga068,VIDA,T21,Sistemas,KB-VIDA-01,P4,não,
+carga069,ACME,T04,Acesso e senha,KB-003,P4,não,
+carga070,BETA,T11,E-mail e Office,KB-008,P4,sim,
+carga071,VIDA,T18,Segurança,KB-012,P4,não,
+carga072,ACME,T01,Acesso e senha,KB-001,P4,sim,
+carga073,BETA,T08,Rede e internet,KB-006,P2,não,carga001;carga025;carga049
+carga074,VIDA,T15,Hardware,nenhum,P4,não,
+carga075,ACME,T22,Hardware,nenhum,P3,não,carga003;carga027;carga051
+carga076,BETA,T05,Impressora,KB-004,P4,sim,
+carga077,VIDA,T12,E-mail e Office,KB-008,P2,não,carga005;carga029;carga053
+carga078,ACME,T19,Segurança,KB-012,P2,não,carga006;carga030;carga054
+carga079,BETA,T02,Acesso e senha,KB-001,P3,não,
+carga080,VIDA,T12,E-mail e Office,KB-008,P2,não,carga077;carga005;carga029;carga053
+carga081,ACME,T16,Acesso e senha,KB-010,P3,não,carga009;carga033;carga057;carga060
+carga082,BETA,T23,Acesso e senha,nenhum,P4,não,
+carga083,VIDA,T06,Impressora,KB-005,P4,não,
+carga084,ACME,T13,Hardware,KB-009,P4,sim,
+carga085,BETA,T20,Sistemas,nenhum,P1,não,carga013;carga037;carga040;carga061
+carga086,VIDA,T03,Acesso e senha,KB-002,P3,não,
+carga087,ACME,T10,Rede e internet,KB-ACME-01,P3,não,
+carga088,BETA,T17,Sistemas,KB-011,P4,não,
+carga089,VIDA,T24,Impressora,nenhum,P1,não,carga017;carga020;carga041;carga065
+carga090,ACME,T07,Rede e internet,KB-006,P1,não,carga018;carga042;carga066
+carga091,BETA,T14,Hardware,nenhum,P3,não,
+carga092,VIDA,T21,Sistemas,KB-VIDA-01,P4,não,
+carga093,ACME,T04,Acesso e senha,KB-003,P4,não,
+carga094,BETA,T11,E-mail e Office,KB-008,P4,sim,
+carga095,VIDA,T18,Segurança,KB-012,P4,não,
+carga096,ACME,T01,Acesso e senha,KB-001,P4,sim,
+carga097,BETA,T08,Rede e internet,KB-006,P2,não,carga001;carga025;carga049;carga073
+carga098,VIDA,T15,Hardware,nenhum,P4,não,
+carga099,ACME,T22,Hardware,nenhum,P3,não,carga003;carga027;carga051;carga075
+carga100,BETA,T08,Rede e internet,KB-006,P2,não,carga097;carga001;carga025;carga049;carga073
+carga101,VIDA,T12,E-mail e Office,KB-008,P2,não,carga005;carga029;carga053;carga077;carga080
+carga102,ACME,T19,Segurança,KB-012,P2,não,carga006;carga030;carga054;carga078
+carga103,BETA,T02,Acesso e senha,KB-001,P3,não,
+carga104,VIDA,T09,Rede e internet,KB-006,P4,não,
+carga105,ACME,T16,Acesso e senha,KB-010,P3,não,carga009;carga033;carga057;carga060;carga081
+carga106,BETA,T23,Acesso e senha,nenhum,P4,não,
+carga107,VIDA,T06,Impressora,KB-005,P4,não,
+carga108,ACME,T13,Hardware,KB-009,P4,sim,
+carga109,BETA,T20,Sistemas,nenhum,P1,não,carga013;carga037;carga040;carga061;carga085
+carga110,VIDA,T03,Acesso e senha,KB-002,P3,não,
+carga111,ACME,T10,Rede e internet,KB-ACME-01,P3,não,
+carga112,BETA,T17,Sistemas,KB-011,P4,não,
+carga113,VIDA,T24,Impressora,nenhum,P1,não,carga017;carga020;carga041;carga065;carga089
+carga114,ACME,T07,Rede e internet,KB-006,P1,não,carga018;carga042;carga066;carga090
+carga115,BETA,T14,Hardware,nenhum,P3,não,
+carga116,VIDA,T21,Sistemas,KB-VIDA-01,P4,não,
+carga117,ACME,T04,Acesso e senha,KB-003,P4,não,
+carga118,BETA,T11,E-mail e Office,KB-008,P4,sim,
+carga119,VIDA,T18,Segurança,KB-012,P4,não,
+carga120,ACME,T04,Acesso e senha,KB-003,P4,não,carga117
+carga121,BETA,T08,Rede e internet,KB-006,P2,não,carga001;carga025;carga049;carga073;carga097;carga100
+carga122,VIDA,T15,Hardware,nenhum,P4,não,
+carga123,ACME,T22,Hardware,nenhum,P3,não,carga003;carga027;carga051;carga075;carga099
+carga124,BETA,T05,Impressora,KB-004,P4,sim,
+carga125,VIDA,T12,E-mail e Office,KB-008,P2,não,carga005;carga029;carga053;carga077;carga080;carga101
+carga126,ACME,T19,Segurança,KB-012,P2,não,carga006;carga030;carga054;carga078;carga102
+carga127,BETA,T02,Acesso e senha,KB-001,P3,não,
+carga128,VIDA,T09,Rede e internet,KB-006,P4,não,
+carga129,ACME,T16,Acesso e senha,KB-010,P3,não,carga009;carga033;carga057;carga060;carga081;carga105
+carga130,BETA,T23,Acesso e senha,nenhum,P4,não,
+carga131,VIDA,T06,Impressora,KB-005,P4,não,
+carga132,ACME,T13,Hardware,KB-009,P4,sim,
+carga133,BETA,T20,Sistemas,nenhum,P1,não,carga013;carga037;carga040;carga061;carga085;carga109
+carga134,VIDA,T03,Acesso e senha,KB-002,P3,não,
+carga135,ACME,T10,Rede e internet,KB-ACME-01,P3,não,
+carga136,BETA,T17,Sistemas,KB-011,P4,não,
+carga137,VIDA,T24,Impressora,nenhum,P1,não,carga017;carga020;carga041;carga065;carga089;carga113
+carga138,ACME,T07,Rede e internet,KB-006,P1,não,carga018;carga042;carga066;carga090;carga114
+carga139,BETA,T14,Hardware,nenhum,P3,não,
+carga140,VIDA,T24,Impressora,nenhum,P1,não,carga137;carga017;carga020;carga041;carga065;carga089;carga113
+carga141,ACME,T04,Acesso e senha,KB-003,P4,não,
+carga142,BETA,T11,E-mail e Office,KB-008,P4,sim,
+carga143,VIDA,T18,Segurança,KB-012,P4,não,
+carga144,ACME,T01,Acesso e senha,KB-001,P4,sim,
+carga145,BETA,T08,Rede e internet,KB-006,P2,não,carga001;carga025;carga049;carga073;carga097;carga100;carga121
+carga146,VIDA,T15,Hardware,nenhum,P4,não,
+carga147,ACME,T22,Hardware,nenhum,P3,não,carga003;carga027;carga051;carga075;carga099;carga123
+carga148,BETA,T05,Impressora,KB-004,P4,sim,
+carga149,VIDA,T12,E-mail e Office,KB-008,P2,não,carga005;carga029;carga053;carga077;carga080;carga101;carga125
+carga150,ACME,T19,Segurança,KB-012,P2,não,carga006;carga030;carga054;carga078;carga102;carga126
+carga151,BETA,T02,Acesso e senha,KB-001,P3,não,
+carga152,VIDA,T09,Rede e internet,KB-006,P4,não,
+carga153,ACME,T16,Acesso e senha,KB-010,P3,não,carga009;carga033;carga057;carga060;carga081;carga105;carga129
+carga154,BETA,T23,Acesso e senha,nenhum,P4,não,
+carga155,VIDA,T06,Impressora,KB-005,P4,não,
+carga156,ACME,T13,Hardware,KB-009,P4,sim,
+carga157,BETA,T20,Sistemas,nenhum,P1,não,carga013;carga037;carga040;carga061;carga085;carga109;carga133
+carga158,VIDA,T03,Acesso e senha,KB-002,P3,não,
+carga159,ACME,T10,Rede e internet,KB-ACME-01,P3,não,
+carga160,BETA,T20,Sistemas,nenhum,P1,não,carga157;carga013;carga037;carga040;carga061;carga085;carga109;carga133
+carga161,VIDA,T24,Impressora,nenhum,P1,não,carga017;carga020;carga041;carga065;carga089;carga113;carga137;carga140
+carga162,ACME,T07,Rede e internet,KB-006,P1,não,carga018;carga042;carga066;carga090;carga114;carga138
+carga163,BETA,T14,Hardware,nenhum,P3,não,
+carga164,VIDA,T21,Sistemas,KB-VIDA-01,P4,não,
+carga165,ACME,T04,Acesso e senha,KB-003,P4,não,
+carga166,BETA,T11,E-mail e Office,KB-008,P4,sim,
+carga167,VIDA,T18,Segurança,KB-012,P4,não,
+carga168,ACME,T01,Acesso e senha,KB-001,P4,sim,
+carga169,BETA,T08,Rede e internet,KB-006,P2,não,carga001;carga025;carga049;carga073;carga097;carga100;carga121;carga145
+carga170,VIDA,T15,Hardware,nenhum,P4,não,
+carga171,ACME,T22,Hardware,nenhum,P3,não,carga003;carga027;carga051;carga075;carga099;carga123;carga147
+carga172,BETA,T05,Impressora,KB-004,P4,sim,
+carga173,VIDA,T12,E-mail e Office,KB-008,P2,não,carga005;carga029;carga053;carga077;carga080;carga101;carga125;carga149
+carga174,ACME,T19,Segurança,KB-012,P2,não,carga006;carga030;carga054;carga078;carga102;carga126;carga150
+carga175,BETA,T02,Acesso e senha,KB-001,P3,não,
+carga176,VIDA,T09,Rede e internet,KB-006,P4,não,
+carga177,ACME,T16,Acesso e senha,KB-010,P3,não,carga009;carga033;carga057;carga060;carga081;carga105;carga129;carga153
+carga178,BETA,T23,Acesso e senha,nenhum,P4,não,
+carga179,VIDA,T06,Impressora,KB-005,P4,não,
+carga180,ACME,T16,Acesso e senha,KB-010,P3,não,carga177;carga009;carga033;carga057;carga060;carga081;carga105;carga129;carga153
+carga181,BETA,T20,Sistemas,nenhum,P1,não,carga013;carga037;carga040;carga061;carga085;carga109;carga133;carga157;carga160
+carga182,VIDA,T03,Acesso e senha,KB-002,P3,não,
+carga183,ACME,T10,Rede e internet,KB-ACME-01,P3,não,
+carga184,BETA,T17,Sistemas,KB-011,P4,não,
+carga185,VIDA,T24,Impressora,nenhum,P1,não,carga017;carga020;carga041;carga065;carga089;carga113;carga137;carga140;carga161
+carga186,ACME,T07,Rede e internet,KB-006,P1,não,carga018;carga042;carga066;carga090;carga114;carga138;carga162
+carga187,BETA,T14,Hardware,nenhum,P3,não,
+carga188,VIDA,T21,Sistemas,KB-VIDA-01,P4,não,
+carga189,ACME,T04,Acesso e senha,KB-003,P4,não,
+carga190,BETA,T11,E-mail e Office,KB-008,P4,sim,
+carga191,VIDA,T18,Segurança,KB-012,P4,não,
+carga192,ACME,T01,Acesso e senha,KB-001,P4,sim,
+carga193,BETA,T08,Rede e internet,KB-006,P2,não,carga001;carga025;carga049;carga073;carga097;carga100;carga121;carga145;carga169
+carga194,VIDA,T15,Hardware,nenhum,P4,não,
+carga195,ACME,T22,Hardware,nenhum,P3,não,carga003;carga027;carga051;carga075;carga099;carga123;carga147;carga171
+carga196,BETA,T05,Impressora,KB-004,P4,sim,
+carga197,VIDA,T12,E-mail e Office,KB-008,P2,não,carga005;carga029;carga053;carga077;carga080;carga101;carga125;carga149;carga173
+carga198,ACME,T19,Segurança,KB-012,P2,não,carga006;carga030;carga054;carga078;carga102;carga126;carga150;carga174
+carga199,BETA,T02,Acesso e senha,KB-001,P3,não,
+carga200,VIDA,T12,E-mail e Office,KB-008,P2,não,carga197;carga005;carga029;carga053;carga077;carga080;carga101;carga125;carga149;carga173

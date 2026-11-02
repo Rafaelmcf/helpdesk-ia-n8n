@@ -1,0 +1,27 @@
+
+Chamados medidos: 200 (faltando no Airtable: 0)
+Tempo de triagem: média 1.8 s, mediana 1.6 s, pior 10.7 s
+Prioridade igual ao gabarito (regra): 200/200 (100%)
+Categoria certa (IA): 192/200 (96%)
+Artigo da KB certo (IA): 199/200 (100%)
+Duplicados e incidentes coletivos agrupados: 67/70 (96%)  | marcados sem motivo: 19
+Resolvidos automaticamente: 29/200 (14%)  | dos que deveriam: 29/29 (100%)
+Erros (IA não respondeu): 0
+Tokens por chamado (estimado): 1132  | custo se fosse pago: US$ 0.00068 (R$ 0.0037) por chamado, R$ 3.74 por mil chamados
+
+Por empresa
+Empresa  Chamados   Auto  Revisão  Categoria ok  Tempo médio
+ACME           66     13       37          100%        1.7 s
+BETA           67     16       23           88%        1.7 s
+VIDA           67      0       39          100%        1.9 s
+
+Observações (02/11/2026, 21:00–21:13, 200 chamados a cada 5 s, n8n com N8N_CONCURRENCY_PRODUCTION_LIMIT=1):
+- Duplicados planejados no gabarito: 67/70 (96%), contra 31/70 (44%) na rodada 1. Causa da rodada 1 confirmada:
+  execuções em paralelo sobrescreviam a memória de chamados recentes (static data). Com fila (1 por vez), resolveu.
+- "Marcados sem motivo: 19": conferi um por um. Todos são a MESMA pessoa mandando o MESMO texto ~2 h depois
+  (o gerador de teste repete nomes e frases a cada 120 chamados). Ou seja, são duplicados de verdade que o
+  gabarito não previu: 0 falsos positivos reais.
+- Categoria 96%: os 8 erros são o mesmo caso ("Gostaria de acesso ao Power BI"): a IA põe em Sistemas, o gabarito
+  diz Acesso e senha. Discutível (pedido de acesso a um sistema).
+- Tempo de triagem: média 1,8 s (rodada 1: 23,5 s, por causa das execuções disputando ao mesmo tempo).
+- Erros da IA: 0. Custo se fosse pago: R$ 3,74 por mil chamados (~1.130 tokens por chamado).

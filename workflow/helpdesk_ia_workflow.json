@@ -1,0 +1,905 @@
+{
+  "name": "Helpdesk IA multi-empresa (Tally > IA > Airtable > Gmail)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "helpdesk-tally",
+        "options": {}
+      },
+      "id": "7e8731a4-d0c0-49c8-b351-8af75eeb49c7",
+      "name": "Webhook Tally",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "a290ff7a-5af2-4ceb-b755-fdbf472ef5d3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Converte a resposta do Tally (ou dos scripts de teste) em campos simples\nconst body = $input.first().json.body || {};\nconst data = body.data || {};\nconst fields = data.fields || [];\n\nfunction valor(chave) {\n  const f = fields.find(x => (x.label || '').toLowerCase().includes(chave));\n  if (!f || f.value == null) return '';\n  // Perguntas de escolha do Tally chegam como lista de IDs + \"options\"\n  if (Array.isArray(f.value)) {\n    return f.value\n      .map(v => ((f.options || []).find(o => o.id === v) || {}).text || v)\n      .join(', ');\n  }\n  return String(f.value).trim();\n}\n\nconst tally_id = data.responseId || data.submissionId || '';\nreturn [{\n  json: {\n    tally_id,\n    empresa_codigo: valor('empresa').toUpperCase(),   // campo oculto: link ?empresa=ACME\n    nome: valor('nome'),\n    email: valor('mail').toLowerCase(),\n    telefone: valor('telefone'),\n    tipo: valor('tipo'),\n    impacto_cliente: valor('afetad'),\n    urgencia_cliente: valor('urg'),\n    descricao: valor('descr'),\n    teste_carga: tally_id.startsWith('carga'),\n    recebido_em: new Date().toISOString(),\n  }\n}];"
+      },
+      "id": "a9a4b95d-df8b-40e2-b505-bb3786a8ae92",
+      "name": "Normalizar dados",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Empresas e KB ficam em cache por 15 min: economiza chamadas de API do Airtable\n// (o plano free tem 1.000 chamadas por mês). O cache só persiste com o workflow ATIVO.\nconst sd = $getWorkflowStaticData('global');\nconst valido = !!sd.cacheEm && (Date.now() - sd.cacheEm) < 15 * 60 * 1000\n  && Array.isArray(sd.empresas) && Array.isArray(sd.kb);\nreturn [{ json: { cache_ok: valido } }];"
+      },
+      "id": "dab0c8e9-23ca-4e2e-a57e-81480acbe2e5",
+      "name": "Ler cache",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "a6fe78cf-2cfd-4f75-b909-e299017b4659",
+              "leftValue": "={{ $json.cache_ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d8d32395-d1bd-459a-b349-2387541b3baf",
+      "name": "Cache válido?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "SUA_BASE_AIRTABLE",
+          "mode": "id",
+          "cachedResultName": "Helpdesk IA (multi-empresa)"
+        },
+        "table": {
+          "__rl": true,
+          "value": "TABELA_EMPRESAS",
+          "mode": "id",
+          "cachedResultName": "Empresas"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "id": "cf61b97c-616f-4644-85e3-40dba7455610",
+      "name": "Buscar empresas",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        880,
+        480
+      ],
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "SUBSTITUA",
+          "name": "Airtable Token (configure)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "SUA_BASE_AIRTABLE",
+          "mode": "id",
+          "cachedResultName": "Helpdesk IA (multi-empresa)"
+        },
+        "table": {
+          "__rl": true,
+          "value": "TABELA_KB",
+          "mode": "id",
+          "cachedResultName": "KB"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "id": "4ee8b10d-454d-4d77-a4d3-9d6aff694e45",
+      "name": "Buscar KB",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1100,
+        480
+      ],
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "SUBSTITUA",
+          "name": "Airtable Token (configure)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Guarda empresas e artigos lidos do Airtable no cache do workflow\nconst sd = $getWorkflowStaticData('global');\nconst pegar = r => ({ recId: r.json.id, ...(r.json.fields || r.json) });\n// Códigos em maiúsculas e sem espaços: \"Delta \" no Airtable vira \"DELTA\", igual ao link ?empresa=DELTA\nconst cod = v => String(v || '').trim().toUpperCase();\nsd.empresas = $('Buscar empresas').all().map(pegar).filter(e => e['Código'])\n  .map(e => ({ ...e, 'Código': cod(e['Código']) }));\nsd.kb = $('Buscar KB').all().map(pegar).filter(a => a.ID)\n  .map(a => ({ ...a, Empresa: cod(a.Empresa) }));\nsd.cacheEm = Date.now();\nreturn [{ json: { cache_ok: true, empresas: sd.empresas.length, artigos: sd.kb.length } }];"
+      },
+      "id": "5799db27-704d-4788-8eb5-588a6993bd14",
+      "name": "Salvar cache",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Escolhe a empresa, os artigos dela e os chamados abertos relacionados, e monta o prompt\nconst sd = $getWorkflowStaticData('global');\nconst t = $('Normalizar dados').first().json;\nconst empresa = (sd.empresas || []).find(e => e['Código'] === t.empresa_codigo && e.Ativa) || null;\nconst kb = (sd.kb || []).filter(a => a.Empresa === 'TODAS' || (empresa && a.Empresa === empresa['Código']));\n// Candidatos a duplicado: mesmo solicitante (7 dias) ou incidente coletivo da mesma empresa (24 h)\nconst coletivo = x => !String(x || '').startsWith('Só');\nconst candidatos = (sd.recentes || []).filter(r => !r.auto && (\n  (r.email === t.email && Date.now() - r.ts < 7 * 24 * 3600 * 1000) ||\n  (r.empresa === t.empresa_codigo && coletivo(r.impacto) && coletivo(t.impacto_cliente)\n    && Date.now() - r.ts < 24 * 3600 * 1000)\n)).slice(-10);\n\nconst kbTexto = kb.map(a => `${a.ID} | ${a.Categoria} | ${a['Título']} | sintomas: ${a.Sintomas}`).join('\\n') || 'nenhum';\nconst recentesTexto = candidatos.map(c => `${c.id} | ${c.email === t.email ? 'mesmo solicitante' : 'outra pessoa da empresa'} | ${c.impacto} | ${c.descricao}`).join('\\n') || 'nenhum';\nconst candidatos_qtd = candidatos.length;\n\nconst prompt = `Você é analista de Service Desk N1 de um MSP que atende várias empresas.\nFaça a triagem do chamado abaixo.\n\nEMPRESA: ${empresa ? empresa.Nome + ' (' + empresa.Segmento + ')' : 'não identificada'}\n\nCHAMADO\nTipo informado: ${t.tipo}\nPessoas afetadas: ${t.impacto_cliente}\nUrgência informada: ${t.urgencia_cliente}\nDescrição: ${t.descricao}\n\nBASE DE CONHECIMENTO DESTA EMPRESA (ID | categoria | título | sintomas)\n${kbTexto}\n\nCHAMADOS ABERTOS RELACIONADOS (ID | quem abriu | pessoas afetadas | descrição)\n${recentesTexto}\n\nResponda SÓ com um JSON válido, sem nada antes ou depois, com estas chaves:\n\"categoria\": uma de \"Acesso e senha\", \"Hardware\", \"Impressora\", \"Rede e internet\", \"E-mail e Office\", \"Sistemas\", \"Segurança\", \"Outro\"\n\"artigo_kb\": ID do artigo que resolve o problema, ou null\n\"confianca\": número de 0 a 1 sobre a categoria e o artigo\n\"duplicado_de\": ID do chamado da lista acima que trata do MESMO problema (mesmo serviço, mesmo local ou mesmo sintoma; se for outra pessoa da empresa, é o mesmo incidente coletivo), ou null\n\"revisar_prioridade\": true se a descrição mostrar risco diferente do que o cliente marcou (ex.: segurança, pedido de compra, empresa parada), senão false\n\"motivo\": uma frase explicando a categoria e o risco\n\"resumo_n2\": até 3 linhas para o técnico: problema, impacto, o que já se sabe\n\"resposta_cliente\": rascunho curto e educado em português, usando os passos do artigo se houver\n\nNão invente artigos nem IDs que não estão nas listas acima.`;\n\nreturn [{ json: { prompt, candidatos_qtd } }];"
+      },
+      "id": "0e4b276e-f022-47c0-abe6-2519406d7808",
+      "name": "Montar contexto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}"
+      },
+      "id": "25aaa5d5-19a7-4da7-ad97-e45da79cecb5",
+      "name": "Triagem com IA",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        1760,
+        300
+      ],
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "b193bce6-2696-4322-9b92-a63349b0dece",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        520
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "SUBSTITUA",
+          "name": "Gemini API (configure)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lê a resposta da IA e aplica as regras de negócio da empresa (SLA, prioridade, resolução automática)\nconst sd = $getWorkflowStaticData('global');\nconst t = $('Normalizar dados').first().json;\nconst prompt = $('Montar contexto').first().json.prompt;\nconst empresa = (sd.empresas || []).find(e => e['Código'] === t.empresa_codigo && e.Ativa) || null;\nconst kb = (sd.kb || []).filter(a => a.Empresa === 'TODAS' || (empresa && a.Empresa === empresa['Código']));\n// Candidatos a duplicado: mesmo solicitante (7 dias) ou incidente coletivo da mesma empresa (24 h)\nconst coletivo = x => !String(x || '').startsWith('Só');\nconst candidatos = (sd.recentes || []).filter(r => !r.auto && (\n  (r.email === t.email && Date.now() - r.ts < 7 * 24 * 3600 * 1000) ||\n  (r.empresa === t.empresa_codigo && coletivo(r.impacto) && coletivo(t.impacto_cliente)\n    && Date.now() - r.ts < 24 * 3600 * 1000)\n)).slice(-10);\n\nconst bruto = String($input.first().json.text || '');\nlet ia = {};\nlet ia_ok = false;\ntry {\n  ia = JSON.parse(bruto.replace(/```json|```/g, '').trim());\n  ia_ok = true;\n} catch (e) { ia = {}; }\n\n// Prioridade pela matriz ITIL (impacto x urgência): regra fixa, não a IA\nconst imp = t.impacto_cliente.startsWith('Setor') ? 3 : t.impacto_cliente.startsWith('Algumas') ? 2 : 1;\nconst urg = t.urgencia_cliente.startsWith('Alta') ? 3 : t.urgencia_cliente.startsWith('Média') ? 2 : 1;\nconst soma = imp + urg;\nconst prioridade = soma >= 6 ? 'P1' : soma === 5 ? 'P2' : soma === 4 ? 'P3' : 'P4';\n// SLA vem do contrato da empresa; sem empresa, usa o mais rígido\nconst padrao = { P1: 15, P2: 60, P3: 240, P4: 720 };\nconst slaMin = empresa ? Number(empresa[`SLA ${prioridade} (min)`]) || padrao[prioridade] : padrao[prioridade];\nconst prazo = $now.setZone('America/Sao_Paulo').plus({ minutes: slaMin });\n\n// Só aceita da IA o que existe de verdade\nconst CATS = ['Acesso e senha', 'Hardware', 'Impressora', 'Rede e internet', 'E-mail e Office', 'Sistemas', 'Segurança', 'Outro'];\nconst categoria = CATS.includes(ia.categoria) ? ia.categoria : 'Outro';\nconst artigo = kb.find(a => a.ID === ia.artigo_kb) || null;\nconst duplicado = candidatos.find(c => c.id === ia.duplicado_de) || null;\nconst confianca = typeof ia.confianca === 'number' ? ia.confianca : 0;\n\nconst revisao = !ia_ok || !empresa || prioridade === 'P1' || prioridade === 'P2' || !!duplicado\n  || confianca < 0.7 || ia.revisar_prioridade === true || categoria === 'Segurança';\n\n// Resolução automática: só P4, com artigo de autoatendimento, IA confiante e empresa que aceita\nconst resolve_sozinho = !revisao && prioridade === 'P4' && !!artigo && !!artigo.Autoatendimento\n  && confianca >= 0.8 && !!(empresa && empresa['Resolução automática']);\n\nconst id = 'HD-' + (empresa ? empresa['Código'] : 'XXX') + '-'\n  + $now.setZone('America/Sao_Paulo').toFormat('yyMMdd') + '-'\n  + Math.random().toString(36).slice(2, 6).toUpperCase();\nconst prazoTexto = prazo.toFormat(\"dd/MM 'às' HH:mm\");\n\nlet proximos;\nif (resolve_sozinho) {\n  proximos = `Este problema tem solução rápida. Siga estes passos: ${artigo['Solução']} Se não resolver, responda este e-mail com REABRIR e um técnico assume.`;\n} else if (duplicado) {\n  proximos = duplicado.email === t.email\n    ? `Você já tem o chamado ${duplicado.id} aberto sobre o mesmo assunto. Vamos tratar os dois juntos.`\n    : `Esse problema já foi informado por outra pessoa da sua empresa (chamado ${duplicado.id}). A equipe está tratando como um único incidente e você também será avisado quando resolver.`;\n} else if (!revisao && artigo && artigo.Autoatendimento) {\n  proximos = `Enquanto isso, tente estes passos: ${artigo['Solução']} Um técnico responde até ${prazoTexto}.`;\n} else {\n  proximos = `Um técnico vai analisar e responder até ${prazoTexto}.`;\n}\n\nconst esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst linha = (k, v) => `<tr><td style=\"padding:4px 12px 4px 0;color:#555\">${k}</td><td style=\"padding:4px 0\"><b>${esc(v)}</b></td></tr>`;\nconst email_html = `<p>Olá, ${esc(t.nome.split(' ')[0])}!</p>\n<p>Recebemos seu chamado${empresa ? ' da ' + esc(empresa.Nome) : ''}. Confira se os dados estão certos:</p>\n<table style=\"border-collapse:collapse;font-size:14px\">\n${linha('Número do chamado', id)}\n${linha('Nome', t.nome)}\n${linha('E-mail', t.email)}\n${linha('Telefone', t.telefone)}\n${linha('Categoria', categoria)}\n${linha('Prioridade', prioridade + (resolve_sozinho ? '' : ' (1ª resposta até ' + prazoTexto + ')'))}\n${linha('Descrição', t.descricao)}\n</table>\n<p><b>Próximos passos:</b> ${esc(proximos)}</p>\n<p>Se algum dado estiver errado, responda este e-mail citando o número ${id}.</p>\n<p>Service Desk</p>`;\n\nreturn [{\n  json: {\n    ...t,\n    id, prioridade, categoria,\n    empresa_rec: empresa ? empresa.recId : null,\n    empresa_nome: empresa ? empresa.Nome : 'Não identificada',\n    revisao_humana: revisao,\n    resolvido_auto: resolve_sozinho,\n    status: resolve_sozinho ? 'Resolvido automaticamente' : revisao ? 'Aguardando revisão' : 'Aberto',\n    prazo_iso: prazo.toISO(), prazo_texto: prazoTexto,\n    artigo_kb: artigo ? artigo.ID : '',\n    duplicado_de: duplicado ? duplicado.id : '',\n    confianca,\n    motivo_ia: ia.motivo || (ia_ok ? '' : 'IA não respondeu: triagem manual'),\n    resumo_n2: ia.resumo_n2 || '',\n    resposta_sugerida: ia.resposta_cliente || '',\n    proximos_passos: proximos,\n    email_html,\n    enviar_email: !t.teste_carga,\n    tokens_estimados: Math.round((prompt.length + bruto.length) / 4),\n    tempo_triagem_s: Math.round(($now.toMillis() - new Date(t.recebido_em).getTime()) / 100) / 10,\n  }\n}];"
+      },
+      "id": "71075041-fc41-4e16-8c4c-310dd8796ea7",
+      "name": "Preparar chamado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2020,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "SUA_BASE_AIRTABLE",
+          "mode": "id",
+          "cachedResultName": "Helpdesk IA (multi-empresa)"
+        },
+        "table": {
+          "__rl": true,
+          "value": "TABELA_CHAMADOS",
+          "mode": "id",
+          "cachedResultName": "Chamados"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $('Preparar chamado').first().json.id }}",
+            "Empresa": "={{ $('Preparar chamado').first().json.empresa_rec ? [$('Preparar chamado').first().json.empresa_rec] : [] }}",
+            "Código empresa": "={{ $('Preparar chamado').first().json.empresa_codigo }}",
+            "Solicitante": "={{ $('Preparar chamado').first().json.nome }}",
+            "Email": "={{ $('Preparar chamado').first().json.email }}",
+            "Telefone": "={{ $('Preparar chamado').first().json.telefone }}",
+            "Tipo informado": "={{ $('Preparar chamado').first().json.tipo }}",
+            "Descrição": "={{ $('Preparar chamado').first().json.descricao }}",
+            "Impacto": "={{ $('Preparar chamado').first().json.impacto_cliente }}",
+            "Urgência": "={{ $('Preparar chamado').first().json.urgencia_cliente }}",
+            "Prioridade": "={{ $('Preparar chamado').first().json.prioridade }}",
+            "Prazo 1ª resposta": "={{ $('Preparar chamado').first().json.prazo_iso }}",
+            "Status": "={{ $('Preparar chamado').first().json.status }}",
+            "Categoria IA": "={{ $('Preparar chamado').first().json.categoria }}",
+            "Artigo KB": "={{ $('Preparar chamado').first().json.artigo_kb }}",
+            "Confiança IA": "={{ $('Preparar chamado').first().json.confianca }}",
+            "Duplicado de": "={{ $('Preparar chamado').first().json.duplicado_de }}",
+            "Motivo IA": "={{ $('Preparar chamado').first().json.motivo_ia }}",
+            "Resumo N2": "={{ $('Preparar chamado').first().json.resumo_n2 }}",
+            "Resposta sugerida": "={{ $('Preparar chamado').first().json.resposta_sugerida }}",
+            "Revisão humana": "={{ $('Preparar chamado').first().json.revisao_humana }}",
+            "Resolvido automaticamente": "={{ $('Preparar chamado').first().json.resolvido_auto }}",
+            "Tempo de triagem (s)": "={{ $('Preparar chamado').first().json.tempo_triagem_s }}",
+            "Tokens estimados": "={{ $('Preparar chamado').first().json.tokens_estimados }}",
+            "ID Tally": "={{ $('Preparar chamado').first().json.tally_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Empresa",
+              "displayName": "Empresa",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Código empresa",
+              "displayName": "Código empresa",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Solicitante",
+              "displayName": "Solicitante",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Telefone",
+              "displayName": "Telefone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tipo informado",
+              "displayName": "Tipo informado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Descrição",
+              "displayName": "Descrição",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Impacto",
+              "displayName": "Impacto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Urgência",
+              "displayName": "Urgência",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Prioridade",
+              "displayName": "Prioridade",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Prazo 1ª resposta",
+              "displayName": "Prazo 1ª resposta",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoria IA",
+              "displayName": "Categoria IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Artigo KB",
+              "displayName": "Artigo KB",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Confiança IA",
+              "displayName": "Confiança IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Duplicado de",
+              "displayName": "Duplicado de",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Motivo IA",
+              "displayName": "Motivo IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Resumo N2",
+              "displayName": "Resumo N2",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Resposta sugerida",
+              "displayName": "Resposta sugerida",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Revisão humana",
+              "displayName": "Revisão humana",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Resolvido automaticamente",
+              "displayName": "Resolvido automaticamente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tempo de triagem (s)",
+              "displayName": "Tempo de triagem (s)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tokens estimados",
+              "displayName": "Tokens estimados",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ID Tally",
+              "displayName": "ID Tally",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ]
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "id": "a23ed0c2-8b11-4d80-8696-07101490c1e0",
+      "name": "Criar chamado",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2240,
+        300
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "SUBSTITUA",
+          "name": "Airtable Token (configure)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Guarda o chamado no cache para detectar duplicados sem gastar chamada de API\nconst sd = $getWorkflowStaticData('global');\nconst c = $('Preparar chamado').first().json;\nconst seteDias = 7 * 24 * 3600 * 1000;\nsd.recentes = (sd.recentes || []).filter(r => Date.now() - r.ts < seteDias).slice(-500);\nsd.recentes.push({ id: c.id, email: c.email, empresa: c.empresa_codigo, impacto: c.impacto_cliente,\n  descricao: c.descricao, ts: Date.now(), auto: c.resolvido_auto });\nreturn [{ json: c }];"
+      },
+      "id": "b2b018c7-fbc1-40b8-8081-4283c1a8fdb4",
+      "name": "Registrar no cache",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "86b2f352-732f-480a-97c2-632d91a809d8",
+              "leftValue": "={{ $('Preparar chamado').first().json.enviar_email }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e5de9b32-ca49-4b71-8c8a-1e01be7d7f6d",
+      "name": "Enviar e-mail?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "Service Desk <SEU_EMAIL@gmail.com>",
+        "toEmail": "={{ $('Preparar chamado').first().json.email }}",
+        "subject": "=Chamado {{ $('Preparar chamado').first().json.id }}: {{ $('Preparar chamado').first().json.categoria }} ({{ $('Preparar chamado').first().json.prioridade }})",
+        "emailFormat": "html",
+        "html": "={{ $('Preparar chamado').first().json.email_html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "772b30db-0483-4f0f-b451-a9958578c3c4",
+      "name": "E-mail: confirmar ao cliente",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2900,
+        200
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "SUBSTITUA",
+          "name": "SMTP account"
+        }
+      },
+      "webhookId": "240a60e8-5d5e-43f9-a810-f9c6ecd78b31"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "996b9601-2f10-4338-80cf-1a72bac0a486",
+              "leftValue": "={{ $('Preparar chamado').first().json.revisao_humana }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2832b516-d7ea-430e-9db0-c72727baeeb3",
+      "name": "Precisa de revisão?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3120,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "Service Desk <SEU_EMAIL@gmail.com>",
+        "toEmail": "SEU_EMAIL+tecnico@gmail.com",
+        "subject": "=[REVISAR] {{ $('Preparar chamado').first().json.prioridade }} {{ $('Preparar chamado').first().json.empresa_nome }}: chamado {{ $('Preparar chamado').first().json.id }}",
+        "emailFormat": "text",
+        "text": "=Empresa: {{ $('Preparar chamado').first().json.empresa_nome }} | Prioridade: {{ $('Preparar chamado').first().json.prioridade }} | Categoria: {{ $('Preparar chamado').first().json.categoria }} | Duplicado de: {{ $('Preparar chamado').first().json.duplicado_de || 'não' }}\nPrazo 1ª resposta: {{ $('Preparar chamado').first().json.prazo_texto }}\nSolicitante: {{ $('Preparar chamado').first().json.nome }} <{{ $('Preparar chamado').first().json.email }}>\n\nMotivo da IA: {{ $('Preparar chamado').first().json.motivo_ia }}\n\nResumo N2:\n{{ $('Preparar chamado').first().json.resumo_n2 }}\n\n--- RESPOSTA SUGERIDA AO CLIENTE (revise antes de mandar) ---\n{{ $('Preparar chamado').first().json.resposta_sugerida }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "6af862f4-4057-4a6e-bca1-30eda0fa58bf",
+      "name": "E-mail: aviso ao técnico",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        3340,
+        100
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "SUBSTITUA",
+          "name": "SMTP account"
+        }
+      },
+      "webhookId": "97f39455-8dba-4536-b86c-1ff8649177c1"
+    }
+  ],
+  "connections": {
+    "Webhook Tally": {
+      "main": [
+        [
+          {
+            "node": "Normalizar dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar dados": {
+      "main": [
+        [
+          {
+            "node": "Ler cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ler cache": {
+      "main": [
+        [
+          {
+            "node": "Cache válido?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cache válido?": {
+      "main": [
+        [
+          {
+            "node": "Montar contexto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Buscar empresas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar empresas": {
+      "main": [
+        [
+          {
+            "node": "Buscar KB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar KB": {
+      "main": [
+        [
+          {
+            "node": "Salvar cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salvar cache": {
+      "main": [
+        [
+          {
+            "node": "Montar contexto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montar contexto": {
+      "main": [
+        [
+          {
+            "node": "Triagem com IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Triagem com IA",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Triagem com IA": {
+      "main": [
+        [
+          {
+            "node": "Preparar chamado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar chamado": {
+      "main": [
+        [
+          {
+            "node": "Criar chamado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar chamado": {
+      "main": [
+        [
+          {
+            "node": "Registrar no cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar no cache": {
+      "main": [
+        [
+          {
+            "node": "Enviar e-mail?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar e-mail?": {
+      "main": [
+        [
+          {
+            "node": "E-mail: confirmar ao cliente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "E-mail: confirmar ao cliente": {
+      "main": [
+        [
+          {
+            "node": "Precisa de revisão?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Precisa de revisão?": {
+      "main": [
+        [
+          {
+            "node": "E-mail: aviso ao técnico",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

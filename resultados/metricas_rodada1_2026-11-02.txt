@@ -1,0 +1,25 @@
+
+Chamados medidos: 200 (faltando no Airtable: 0)
+Tempo de triagem: média 23.5 s, mediana 23.9 s, pior 89.7 s
+Prioridade igual ao gabarito (regra): 200/200 (100%)
+Categoria certa (IA): 195/200 (98%)
+Artigo da KB certo (IA): 192/200 (96%)
+Duplicados e incidentes coletivos agrupados: 31/70 (44%)  | marcados sem motivo: 1
+Resolvidos automaticamente: 29/200 (14%)  | dos que deveriam: 29/29 (100%)
+Erros (IA não respondeu): 0
+Tokens por chamado (estimado): 1020  | custo se fosse pago: US$ 0.00061 (R$ 0.0034) por chamado, R$ 3.37 por mil chamados
+
+Por empresa
+Empresa  Chamados   Auto  Revisão  Categoria ok  Tempo médio
+ACME           66     13       19          100%       24.1 s
+BETA           67     16       20           93%       22.6 s
+VIDA           67      0       30          100%       23.7 s
+
+Observações (02/11/2026, 19:53–20:10, 200 chamados a cada 5 s, Gemini 3.5 Flash-Lite grátis):
+- Erros (IA não respondeu): 0 de 200 (conferido no campo Motivo IA).
+- VIDA tem 0 automáticos porque a empresa está com Resolução automática desligada (como planejado).
+- Duplicados 31/70: causa provável é concorrência. Com chamados a cada 5 s e ~25 s de processamento,
+  rodavam ~5 execuções ao mesmo tempo no n8n; cada uma lê e grava a lista "recentes" (static data)
+  e a última a gravar apaga o que as outras registraram. Correção: N8N_CONCURRENCY_PRODUCTION_LIMIT=1
+  (fila, uma execução por vez) e rodar de novo.
+- Tempo de triagem de 23,5 s inclui espera por execuções em paralelo; em teste isolado era ~5 s.
