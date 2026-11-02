@@ -48,6 +48,12 @@ Passei 15 anos gerenciando operações que funcionam 24 horas por dia, lidando c
 
 ### Arquitetura
 
+O fluxo no n8n, com os 17 nós:
+
+![Fluxo completo no n8n](docs/prints/n8n_fluxo_completo.png)
+
+O mesmo fluxo, em diagrama:
+
 ```mermaid
 flowchart LR
     A[Formulário Tally] -->|webhook| B[Normalizar dados]
@@ -70,7 +76,15 @@ flowchart LR
 
 **1. Contexto por empresa (multi-tenant).** O formulário envia o código da empresa num campo oculto. O fluxo carrega só os dados daquela empresa: nome, segmento, SLA por prioridade, se aceita resolução automática e os artigos da base de conhecimento dela (mais os artigos comuns a todas).
 
+O nó "Normalizar dados" converte a resposta do formulário em campos simples, incluindo o código da empresa:
+
+![Nó Normalizar dados no n8n](docs/prints/n8n_no_normalizar_dados.png)
+
 **2. Candidatos a duplicado, sem gastar API.** O n8n guarda os chamados dos últimos 7 dias em *static data*. Entram como candidatos: chamados do **mesmo solicitante** (7 dias) ou **incidentes coletivos da mesma empresa** (24 h, quando o impacto não é "Só eu"). A IA recebe no máximo 10 candidatos e decide se o novo chamado é o mesmo problema.
+
+O nó "Registrar no cache" guarda cada chamado na memória de 7 dias usada para achar duplicados:
+
+![Nó Registrar no cache no n8n](docs/prints/n8n_no_registrar_cache.png)
 
 **3. A IA responde em JSON estrito:** `categoria`, `artigo_kb`, `confianca`, `duplicado_de`, `revisar_prioridade`, `motivo`, `resumo_n2` (para o técnico) e `resposta_cliente` (rascunho).
 
